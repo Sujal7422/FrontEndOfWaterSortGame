@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; // ✅ Ensure path is correct
+import { useAuth } from '../../context/AuthContext';
+import BASE_URL from '../../utils/baseURL'; // ✅ centralized URL
 
 function Register() {
   const [Username, setUsername] = useState('');
@@ -9,30 +10,25 @@ function Register() {
   const [Password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ Login method from context
+  const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      // Step 1: Register
       await axios.post(
-        'http://localhost:3000/api/auth/register',
+        `${BASE_URL}/api/auth/register`,
         { Username, Email, Password },
         { withCredentials: true }
       );
 
-      // Step 2: Auto-login using same credentials
       const res = await axios.post(
-        'http://localhost:3000/api/auth/login',
+        `${BASE_URL}/api/auth/login`,
         { Email, Password },
         { withCredentials: true }
       );
 
-      // Step 3: Save user context
       login(res.data.data.user);
-
-      // Step 4: Navigate to dashboard
       alert('User registered and logged in successfully!');
       navigate('/dashboard');
     } catch (error) {

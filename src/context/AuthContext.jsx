@@ -1,38 +1,35 @@
-// src/context/AuthContext.jsx
-import { createContext, useContext, useEffect, useState } from 'react';
-import axios from 'axios';
+import { createContext, useContext, useEffect, useState } from "react";
+import axios from "axios";
+import BASE_URL from "../utils/baseURL";
 
+// ✅ Create the Auth context
 const AuthContext = createContext();
 
 export const AuthProvider = ({ children }) => {
+  const [user, setUser] = useState(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
 
+  // ✅ Fetch current user from backend
   const fetchCurrentUser = async () => {
     try {
-      const res = await axios.get('http://localhost:3000/api/auth/current-user', { withCredentials: true });
+      const res = await axios.get(`${BASE_URL}/api/auth/current-user`, {
+        withCredentials: true,
+      });
+      setUser(res.data.data);
       setIsLoggedIn(true);
-      setCurrentUser(res.data.data);
-    } catch {
-      setIsLoggedIn(false);
-      setCurrentUser(null);
-    }
-  };
-
-  const login = (user) => {
-    setIsLoggedIn(true);
-    setCurrentUser(user);
-  };
-
-  const logout = async () => {
-    try {
-      await axios.post('http://localhost:3000/api/auth/logout', {}, { withCredentials: true });
     } catch (err) {
-      console.error("Logout failed", err);
-    } finally {
+      setUser(null);
       setIsLoggedIn(false);
-      setCurrentUser(null);
     }
+  };
+
+  // ✅ Logout function
+  const logout = async () => {
+    await axios.get(`${BASE_URL}/api/auth/logout`, {
+      withCredentials: true,
+    });
+    setUser(null);
+    setIsLoggedIn(false);
   };
 
   useEffect(() => {
@@ -40,10 +37,11 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, currentUser, login, logout }}>
+    <AuthContext.Provider value={{ user, isLoggedIn, logout }}>
       {children}
     </AuthContext.Provider>
   );
 };
 
+// ✅ Export useAuth hook
 export const useAuth = () => useContext(AuthContext);

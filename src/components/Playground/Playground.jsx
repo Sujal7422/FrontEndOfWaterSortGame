@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { useParams } from "react-router-dom";
 import axios from "axios";
 import levelMeta from "../../levelData/levelMeta.json";
+import BASE_URL from "../../utils/baseURL"; // ✅ added import
 
 function Playground() {
   const { Difficulty } = useParams();
@@ -11,7 +12,7 @@ function Playground() {
   useEffect(() => {
     const fetchProgress = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/level/getDifficultiesProgress", {
+        const res = await axios.get(`${BASE_URL}/api/level/getDifficultiesProgress`, {
           withCredentials: true,
         });
         setProgress(res.data.data);

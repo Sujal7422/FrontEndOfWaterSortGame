@@ -1,16 +1,19 @@
-   
+import { useEffect, useState, useMemo, useCallback } from "react";
+import { useParams } from "react-router-dom";
+import axios from "axios";
+import BASE_URL from "../../utils/baseURL"; // ✅ add this line
 
 function Levels() {
   const { Difficulty, Levels: levelNumber } = useParams();
   const [rawLevelData, setRawLevelData] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [selectedTubes, setSelectedTubes] = useState([]);
 
-  // Fetch level data on mount
   useEffect(() => {
     const fetchLevelData = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:3000/api/level/${Difficulty}/${levelNumber}`,
+          `${BASE_URL}/api/level/${Difficulty}/${levelNumber}`, // ✅ updated here
           { withCredentials: true }
         );
         setRawLevelData(res.data.levelData);
@@ -24,28 +27,35 @@ function Levels() {
     fetchLevelData();
   }, [Difficulty, levelNumber]);
 
-  // Memoize tubes from API response to prevent re-computation
   const tubes = useMemo(() => {
     return rawLevelData?.tubes || [];
   }, [rawLevelData]);
 
-  // Example manipulation function (e.g., pour from one tube to another)
   const manipulateTubes = useCallback((fromIdx, toIdx) => {
     setRawLevelData(prev => {
       if (!prev) return prev;
       const newTubes = JSON.parse(JSON.stringify(prev.tubes));
-
       const fromTube = newTubes[fromIdx];
       const toTube = newTubes[toIdx];
-
       const colorToPour = fromTube.pop();
       if (colorToPour !== undefined && toTube.length < 4) {
         toTube.push(colorToPour);
       }
-
       return { ...prev, tubes: newTubes };
     });
   }, []);
+
+  const handleTubeClick = (index) => {
+    setSelectedTubes(prev => {
+      const newSelection = [...prev, index];
+      if (newSelection.length === 2) {
+        const [fromIdx, toIdx] = newSelection;
+        manipulateTubes(fromIdx, toIdx);
+        return [];
+      }
+      return newSelection.slice(-2);
+    });
+  };
 
   if (loading) {
     return (
@@ -65,8 +75,12 @@ function Levels() {
         {tubes.map((tube, index) => (
           <div
             key={index}
-            className="bg-[rgb(60,60,85)] border-2 border-[rgb(50,110,180)] rounded-xl p-2 h-40 flex flex-col-reverse justify-start items-center gap-1"
-            onClick={() => console.log("Clicked tube", index)}
+            className={`bg-transparent border-2 rounded-xl p-2 h-40 flex flex-col-reverse justify-start items-center gap-1 cursor-pointer transition duration-300 ${
+              selectedTubes.includes(index)
+                ? "border-[rgb(255,159,64)] scale-105"
+                : "border-[rgb(50,110,180)]"
+            }`}
+            onClick={() => handleTubeClick(index)}
           >
             {tube.map((color, i) => (
               <div
@@ -82,19 +96,23 @@ function Levels() {
   );
 }
 
-// Helper to map numeric values to colors (adjust as needed)
 function getColor(value) {
   const colors = [
-    "#FF0000", // 0 - red
-    "#00FF00", // 1 - green
-    "#0000FF", // 2 - blue
-    "#FFFF00", // 3 - yellow
-    "#FF00FF", // 4 - magenta
-    "#00FFFF", // 5 - cyan
-    "#FFA500", // 6 - orange
-    "#A020F0", // 7 - purple
-    "#A52A2A", // 8 - brown
-    "#708090", // 9 - slate gray
+    "transparent",          // 0 = transparent (empty background)
+    "rgb(255, 99, 132)",    // 1
+    "rgb(255, 159, 64)",    // 2
+    "rgb(255, 205, 86)",    // 3
+    "rgb(75, 192, 192)",    // 4
+    "rgb(54, 162, 235)",    // 5
+    "rgb(153, 102, 255)",   // 6
+    "rgb(255, 102, 204)",   // 7
+    "rgb(201, 203, 207)",   // 8
+    "rgb(255, 153, 0)",     // 9
+    "rgb(102, 255, 102)",   // 10
+    "rgb(0, 204, 153)",     // 11
+    "rgb(204, 102, 255)",   // 12
+    "rgb(255, 204, 204)",   // 13
+    "rgb(0, 204, 255)",     // 14
   ];
   return colors[value] || "#333";
 }

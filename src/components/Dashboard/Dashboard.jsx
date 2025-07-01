@@ -2,24 +2,25 @@ import React, { useEffect, useState } from "react";
 import axios from "axios";
 import levelMeta from "../../levelData/levelMeta.json";
 import { useAuth } from "../../context/AuthContext";
-import { useNavigate } from "react-router-dom"; // ⬅️ Required
+import { useNavigate } from "react-router-dom";
+import BASE_URL from "../../utils/baseURL"; // ✅ centralized base URL
 
 function Dashboard() {
   const [user, setUser] = useState(null);
   const [progress, setProgress] = useState({});
   const [loading, setLoading] = useState(true);
   const { isLoggedIn } = useAuth();
-  const navigate = useNavigate(); // ⬅️ For navigation
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get("http://localhost:3000/api/level/getDifficultiesProgress", {
+        const res = await axios.get(`${BASE_URL}/api/level/getDifficultiesProgress`, {
           withCredentials: true,
         });
         setProgress(res.data.data);
 
-        const userRes = await axios.get("http://localhost:3000/api/user/me", {
+        const userRes = await axios.get(`${BASE_URL}/api/user/current-user`, {
           withCredentials: true,
         });
         setUser(userRes.data.data);
@@ -69,7 +70,7 @@ function Dashboard() {
             return (
               <div
                 key={difficulty}
-                onClick={() => navigate(`/playground/${difficulty}`)} // ✅ Navigate on click
+                onClick={() => navigate(`/playground/${difficulty}`)}
                 className="rounded-xl p-4 shadow-md hover:scale-105 transition-all cursor-pointer"
                 style={{
                   backgroundColor: "rgb(60,60,85)",

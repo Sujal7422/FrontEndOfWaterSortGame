@@ -1,28 +1,27 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../context/AuthContext'; // ✅ Import AuthContext
+import { useAuth } from '../../context/AuthContext';
+import BASE_URL from '../../utils/baseURL'; // ✅ centralized import
 
 function Login() {
   const [Email, setEmail] = useState('');
   const [Password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth(); // ✅ Get login method from context
+  const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
       const response = await axios.post(
-        'http://localhost:3000/api/auth/login',
+        `${BASE_URL}/api/user/login`,
         { Email, Password },
         { withCredentials: true }
       );
 
-      // ✅ Save user in AuthContext
       login(response.data.data.user);
-
       alert("Login successful!");
       navigate('/dashboard');
     } catch (error) {
@@ -36,11 +35,9 @@ function Login() {
   return (
     <div className="flex items-center justify-center min-h-screen bg-[rgb(42,30,68)]">
       <div className="w-[470px] relative scale-90 hover:scale-100 transition-all duration-500">
-        {/* Glow Borders */}
         <div className="absolute top-6 left-6 w-full h-full border-[3px] border-[rgb(50,110,180)] rounded-lg z-0"></div>
         <div className="absolute top-12 left-12 w-full h-full border border-[rgb(50,110,180)] rounded-lg z-0"></div>
 
-        {/* Main Form Card */}
         <div className="relative z-10 border-4 border-[rgb(50,110,180)] bg-[rgb(72,52,155)] rounded-lg overflow-hidden text-[rgb(240,240,255)]">
           <div className="flex items-center justify-between px-4 py-2 bg-[rgb(50,110,180)] text-[rgb(72,52,155)]">
             <span className="text-xl font-bold">Login</span>
