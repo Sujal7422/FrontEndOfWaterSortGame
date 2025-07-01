@@ -12,6 +12,13 @@ function Dashboard() {
   const { isLoggedIn } = useAuth();
   const navigate = useNavigate();
 
+  // ✅ Redirect if not logged in (after loading finishes)
+  useEffect(() => {
+    if (!isLoggedIn && !loading) {
+      navigate("/login");
+    }
+  }, [isLoggedIn, loading, navigate]);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -34,9 +41,17 @@ function Dashboard() {
     if (isLoggedIn) fetchData();
   }, [isLoggedIn]);
 
+  // ✅ Loader
   if (loading) {
-    return <div className="text-center text-xl mt-10 text-[rgb(180,180,210)]">Loading dashboard...</div>;
+    return (
+      <div className="text-center text-xl mt-10 text-[rgb(180,180,210)]">
+        Loading dashboard...
+      </div>
+    );
   }
+
+  // ⛔ In case redirected too late or somehow reached here unauthenticated
+  if (!isLoggedIn) return null;
 
   return (
     <div className="min-h-screen bg-[rgb(42,30,68)] text-[rgb(240,240,255)] px-4 py-6">
@@ -45,10 +60,12 @@ function Dashboard() {
         <div className="rounded-xl bg-[rgb(72,52,155)] px-6 py-4 shadow-lg flex justify-between items-center">
           <div>
             <div className="text-lg font-bold">
-              Username: <span className="text-[rgb(180,180,210)]">{user?.Username}</span>
+              Username:{" "}
+              <span className="text-[rgb(180,180,210)]">{user?.Username}</span>
             </div>
             <div className="text-sm">
-              Email: <span className="text-[rgb(180,180,210)]">{user?.Email}</span>
+              Email:{" "}
+              <span className="text-[rgb(180,180,210)]">{user?.Email}</span>
             </div>
           </div>
           <div className="text-sm bg-[rgb(50,110,180)] px-3 py-1 rounded-full text-[rgb(42,30,68)] font-semibold">

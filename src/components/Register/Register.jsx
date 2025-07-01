@@ -1,8 +1,6 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import BASE_URL from '../../utils/baseURL'; // ✅ centralized URL
 
 function Register() {
   const [Username, setUsername] = useState('');
@@ -10,30 +8,37 @@ function Register() {
   const [Password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+
+  // Use register and login from AuthContext
+  const { register, login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      await axios.post(
-        `${BASE_URL}/api/auth/register`,
-        { Username, Email, Password },
-        { withCredentials: true }
-      );
+      // Register user using context function
+      const registerResult = await register(Username, Email, Password);
 
-      const res = await axios.post(
-        `${BASE_URL}/api/auth/login`,
-        { Email, Password },
-        { withCredentials: true }
-      );
+      if (!registerResult.success) {
+        alert(registerResult.message);
+        setLoading(false);
+        return;
+      }
 
-      login(res.data.data.user);
+      // After successful registration, log in user automatically
+      const loginResult = await login(Email, Password);
+
+      if (!loginResult.success) {
+        alert(loginResult.message);
+        setLoading(false);
+        return;
+      }
+
       alert('User registered and logged in successfully!');
       navigate('/dashboard');
     } catch (error) {
-      console.error('Error:', error.response?.data || error.message);
-      alert(error.response?.data?.message || 'Registration failed');
+      console.error('Unexpected error:', error);
+      alert('An unexpected error occurred');
     } finally {
       setLoading(false);
     }

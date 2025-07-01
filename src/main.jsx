@@ -1,4 +1,6 @@
+// src/main.jsx
 import { StrictMode } from 'react';
+import axios from 'axios';
 import { createRoot } from 'react-dom/client';
 import './main.css';
 import { createBrowserRouter, Navigate } from 'react-router-dom';
@@ -13,14 +15,15 @@ import { RouterProvider } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext.jsx';
 import About from './components/About/About.jsx';
 
+axios.defaults.withCredentials = true;
+axios.defaults.baseURL = "https://backendofwatersortgame.onrender.com/api"; // ✅
+
 const router = createBrowserRouter([
   {
     path: '/',
     element: <Layout />,
     children: [
-      // 👇 Redirect root `/` to `/About`
       { index: true, element: <Navigate to="/About" replace /> },
-
       { path: 'About', element: <About /> },
       { path: 'Register', element: <Register /> },
       { path: 'Dashboard', element: <Dashboard /> },

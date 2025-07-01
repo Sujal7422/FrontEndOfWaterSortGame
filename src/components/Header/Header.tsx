@@ -6,8 +6,8 @@ function Header() {
   const { isLoggedIn, logout } = useAuth();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
+  const handleLogout = async () => {
+    await logout(); // wait for logout to complete
     navigate('/login');
   };
 
@@ -65,7 +65,10 @@ function Header() {
             </NavLink>
           </>
         ) : (
-          <button onClick={handleLogout} className={navLinkClass}>
+          <button
+            onClick={handleLogout}
+            className="px-4 py-2 font-semibold rounded-lg transition-all duration-300 transform hover:scale-110 bg-[rgb(50,110,180)] text-[rgb(240,240,255)] shadow-[0_0_10px_rgb(45,160,220)] hover:bg-[rgb(240,240,255)] hover:text-[rgb(72,52,155)] hover:shadow-[0_0_15px_rgb(72,52,155)]"
+          >
             Logout
           </button>
         )}
@@ -74,7 +77,7 @@ function Header() {
   );
 }
 
-// 🧠 Conditional class based on route match
+// ✅ Tailwind style logic for active NavLinks
 const navLinkClass = ({ isActive }) =>
   `px-4 py-2 font-semibold rounded-lg transition-all duration-300 transform hover:scale-110 ${
     isActive

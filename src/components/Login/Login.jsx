@@ -1,32 +1,31 @@
 import React, { useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import BASE_URL from '../../utils/baseURL'; // ✅ centralized import
 
 function Login() {
   const [Email, setEmail] = useState('');
   const [Password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
   const { login } = useAuth();
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
     try {
-      const response = await axios.post(
-        `${BASE_URL}/api/user/login`,
-        { Email, Password },
-        { withCredentials: true }
-      );
+      const loginResult = await login({ Email, Password });
 
-      login(response.data.data.user);
-      alert("Login successful!");
+      if (!loginResult?.success) {
+        alert(loginResult?.message || "Login failed");
+        return;
+      }
+
+      alert('Login successful!');
       navigate('/dashboard');
-    } catch (error) {
-      console.error("Login Error:", error.response?.data || error.message);
-      alert(error.response?.data?.message || "Login failed");
+    } catch (err) {
+      console.error('Login error:', err);
+      alert('Login failed');
     } finally {
       setLoading(false);
     }
@@ -49,7 +48,7 @@ function Login() {
               <label className="block text-lg mb-1 text-[rgb(180,180,210)]">EMAIL:</label>
               <input
                 type="email"
-                placeholder="Email"
+                placeholder="Enter your email"
                 value={Email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -61,7 +60,7 @@ function Login() {
               <label className="block text-lg mb-1 text-[rgb(180,180,210)]">PASSWORD:</label>
               <input
                 type="password"
-                placeholder="Password"
+                placeholder="Enter your password"
                 value={Password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -74,7 +73,7 @@ function Login() {
               disabled={loading}
               className="w-full mt-4 text-xl font-bold py-3 rounded-md bg-[rgb(50,110,180)] text-[rgb(240,240,255)] border-2 border-[rgb(50,110,180)] hover:bg-white hover:text-[rgb(72,52,155)] hover:border-[rgb(72,52,155)] transition-all"
             >
-              {loading ? "Logging in..." : "Login"}
+              {loading ? 'Logging in...' : 'Login'}
             </button>
           </form>
         </div>

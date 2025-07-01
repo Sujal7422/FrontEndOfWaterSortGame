@@ -64,6 +64,8 @@ function Levels() {
       </div>
     );
   }
+  console.log(rawLevelData);
+  
 
   return (
     <div className="min-h-screen bg-[rgb(42,30,68)] text-white px-4 py-10">
